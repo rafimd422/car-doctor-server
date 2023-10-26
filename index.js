@@ -1,6 +1,6 @@
 const express = require('express')
 const cors = require('cors')
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const app = express()
 const port = process.env.PORT || 4000
@@ -36,6 +36,14 @@ const result = await cursor.toArray()
         res.send(result)
     });
 
+app.get('/services/:id', async(req, res) =>{
+  const id = req.params.id;
+  const query = {_id: new ObjectId(id)}
+  console.log(query)
+  const result = await serviceCollection.findOne(query)
+  res.send(result)
+})
+
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
@@ -50,6 +58,7 @@ run().catch(console.dir);
 app.get('/', (req, res) => {
   res.send('Server is Running...')
 })
+
 
 app.listen(port, () => {
   console.log(`Car doctor server is runnig on port ${port}`)

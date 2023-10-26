@@ -54,6 +54,15 @@ app.post('/booking',async (req,res)=>{
 res.send(result)
 })
 
+app.get('/booking', async (req,res) => {
+  let query = {}
+  if(req.query?.email){
+    query ={email: req.query.email}
+  }
+  const result = await bookingCollection.find(query).toArray()
+  res.send(result)
+})
+
 
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");

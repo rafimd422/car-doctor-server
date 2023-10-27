@@ -57,10 +57,17 @@ res.send(result)
 app.get('/booking', async (req,res) => {
   let query = {}
   if(req.query?.email){
-    query ={email: req.query.email}
+    query = {email: req.query.email}
   }
   const result = await bookingCollection.find(query).toArray()
   res.send(result)
+})
+
+app.delete('/booking/:id', async(req,res)=>{
+  const id = req.params.id;
+const query = {_id: new ObjectId(id)}
+const result = await bookingCollection.deleteOne(query)
+res.send(result)
 })
 
 

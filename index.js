@@ -16,7 +16,23 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 
-
+const varifyToken = async (req, res, next) => {
+  const token = req.cookies.token;
+  if(!token){
+    return res.status(401).send({message: 'unauthorized'})
+  }
+  jwt.verify(token, process.env.SECRET_KEY, (err, decoded)=>{
+if(err){
+  return res.status(401).send({message:'unauthorized access'})
+}
+req.user = decoded;
+next()
+})
+}
+const logger = (req, res, next) =>{
+  console.log('log: info', req.method, req.url);
+  next();
+}
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.sopxnju.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -42,7 +58,7 @@ async function run() {
     // auth relelted api
     app.post("/jwt", async (req, res) => {
       const user = req.body;
-      const token = jwt.sign(user, process.env.SECRET_KEY, { expiresIn: "1h" });
+      const token = jwt.sign(user, process.env.SECRET_KEY, { expiresIn: "5h" });
       
       res.cookie("token", token, {
         httpOnly: true,
@@ -77,11 +93,18 @@ async function run() {
     });
 
     app.get("/booking", async (req, res) => {
+
       let query = {};
       if (req.query?.email) {
         query = { email: req.query.email };
-      }
+      }   
+      //     if(req.query.email !== req.user?.email){
+      //    return  res.status(403).send({message:'forbidden access'})
+      // }
+
+      console.log(req.cookies.token)
       const result = await bookingCollection.find(query).toArray();
+
       res.send(result);
     });
 
